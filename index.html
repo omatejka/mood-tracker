@@ -7,246 +7,326 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="Inner Log" />
 <title>Inner Log</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.5.0/Recharts.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #0f1117; color: #e8e6e1; font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; }
-  input[type=range] { accent-color: #c9b8f5; }
-  textarea, input[type=text], input[type=number] {
-    background: #161a27; border: 1px solid #1e2130; border-radius: 6px;
-    color: #e8e6e1; padding: 0.4rem 0.6rem; font-size: 0.85rem; outline: none;
-  }
-  ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-thumb { background: #2a2d3a; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0f1117; color: #e8e6e1; font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; min-height: 100vh; padding-bottom: 4rem; }
+input[type=range] { width: 100%; accent-color: #c9b8f5; }
+input[type=text], input[type=number] { background: #161a27; border: 1px solid #1e2130; border-radius: 6px; color: #e8e6e1; padding: 0.4rem 0.6rem; font-size: 0.85rem; outline: none; }
+textarea { background: #161a27; border: 1px solid #1e2130; border-radius: 8px; color: #e8e6e1; padding: 0.65rem; font-size: 0.88rem; outline: none; width: 100%; min-height: 75px; resize: vertical; font-family: inherit; }
+button { font-family: inherit; }
+
+#header { padding: 1.2rem 1.2rem 0; border-bottom: 1px solid #1e2130; }
+#header h1 { font-size: 1.2rem; font-weight: 700; color: #c9b8f5; }
+#header p { font-size: 0.72rem; color: #6b7280; margin-top: 0.15rem; }
+#tabs { display: flex; gap: 1rem; margin-top: 1rem; }
+.tab-btn { padding: 0.5rem 0; background: none; border: none; border-bottom: 2px solid transparent; color: #6b7280; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+.tab-btn.active { color: #c9b8f5; border-bottom-color: #c9b8f5; }
+
+#body { padding: 1.2rem; }
+.section { margin-bottom: 1.4rem; }
+.label { font-size: 0.68rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.45rem; display: block; }
+.slider-row { display: flex; align-items: center; gap: 0.6rem; }
+.slider-lbl { font-size: 0.78rem; color: #6b7280; min-width: 3.5rem; }
+.slider-val { font-size: 0.85rem; color: #c9b8f5; font-weight: 700; min-width: 2.5rem; }
+
+.mood-grid { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.mood-btn { padding: 0.45rem 0.75rem; border-radius: 8px; border: 2px solid #1e2130; background: #161a27; color: #e8e6e1; cursor: pointer; font-size: 0.82rem; }
+.mood-btn.active { border-color: #c9b8f5; background: #1e1a2e; font-weight: 700; }
+
+.sub-grid { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.sub-btn { padding: 0.32rem 0.65rem; border-radius: 6px; border: 1px solid #1e2130; background: #161a27; color: #9ca3af; cursor: pointer; font-size: 0.78rem; }
+.sub-btn.active { border-color: #c9b8f5; color: #c9b8f5; background: #1e1a2e; }
+.sub-details { display: flex; gap: 0.4rem; margin-top: 0.5rem; flex-wrap: wrap; }
+.sub-item { display: flex; align-items: center; gap: 0.35rem; background: #1e2130; border-radius: 6px; padding: 0.3rem 0.55rem; }
+.sub-item span { font-size: 0.78rem; color: #c9b8f5; }
+.sub-item input { width: 60px; }
+.custom-row { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+.custom-row input { width: 140px; }
+
+#save-btn { width: 100%; padding: 0.78rem; border-radius: 10px; border: none; background: #2a2d3a; color: #4b5563; cursor: not-allowed; font-size: 0.93rem; font-weight: 700; }
+#save-btn.ready { background: #7c5ccc; color: #fff; cursor: pointer; }
+
+.entry-card { background: #161a27; border-radius: 10px; padding: 0.8rem 1rem; margin-bottom: 0.65rem; border-left: 3px solid #7c5ccc; }
+.entry-card .top { display: flex; justify-content: space-between; margin-bottom: 0.35rem; }
+.entry-card .mood-label { font-weight: 700; }
+.entry-card .ts { font-size: 0.72rem; color: #6b7280; }
+.entry-card .meta { font-size: 0.76rem; color: #9ca3af; display: flex; gap: 0.9rem; flex-wrap: wrap; }
+.entry-card .note { margin-top: 0.45rem; font-size: 0.83rem; color: #d1cdc7; font-style: italic; }
+
+#analyze-btn { width: 100%; padding: 0.72rem; border-radius: 10px; border: 1px solid #7c5ccc; background: transparent; color: #c9b8f5; cursor: pointer; font-size: 0.88rem; font-weight: 600; margin-bottom: 1rem; }
+#ai-box { background: #161a27; border-radius: 10px; padding: 1rem 1.1rem; line-height: 1.7; font-size: 0.88rem; color: #d1cdc7; margin-bottom: 1.4rem; display: none; }
+.chart-wrap { margin-bottom: 1.4rem; }
+#empty { color: #6b7280; text-align: center; margin-top: 3rem; }
 </style>
 </head>
 <body>
-<div id="root"></div>
-<script type="text/babel">
-const { useState, useEffect } = React;
-const { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } = Recharts;
+<div id="header">
+  <h1>🌙 Inner Log</h1>
+  <p>private · persistent · non-judgmental</p>
+  <div id="tabs">
+    <button class="tab-btn active" onclick="switchTab('log')">Log Entry</button>
+    <button class="tab-btn" id="trends-tab-btn" onclick="switchTab('trends')">Trends</button>
+  </div>
+</div>
 
-const MOODS = [
-  { score: 1, label: "Terrible", emoji: "😞" },
-  { score: 3, label: "Low", emoji: "😕" },
-  { score: 5, label: "Okay", emoji: "😐" },
-  { score: 7, label: "Good", emoji: "🙂" },
-  { score: 9, label: "Great", emoji: "😄" },
-  { score: 10, label: "Euphoric", emoji: "🤩" },
-];
+<div id="body">
+  <!-- LOG TAB -->
+  <div id="log-tab">
+    <div class="section">
+      <span class="label">How are you feeling?</span>
+      <div class="mood-grid" id="mood-grid"></div>
+    </div>
 
-const SUBSTANCE_PRESETS = ["Alcohol","Cannabis","MDMA","Caffeine","Cocaine","Psilocybin","Kratom","Other"];
-const ANXIETY_LABELS = ["Calm","Mild","Moderate","Notable","High","Elevated","Strong","Intense","Severe"];
-const KEY = "inner_log_v1";
-
-function App() {
-  const [tab, setTab] = useState("log");
-  const [entries, setEntries] = useState(() => { try { return JSON.parse(localStorage.getItem(KEY)||"[]"); } catch { return []; } });
-  const [mood, setMood] = useState(null);
-  const [anxiety, setAnxiety] = useState(3);
-  const [sleepH, setSleepH] = useState(7);
-  const [sleepQ, setSleepQ] = useState(5);
-  const [substances, setSubstances] = useState({});
-  const [customSub, setCustomSub] = useState("");
-  const [note, setNote] = useState("");
-  const [saved, setSaved] = useState(false);
-  const [aiText, setAiText] = useState("");
-  const [aiLoading, setAiLoading] = useState(false);
-
-  useEffect(() => { localStorage.setItem(KEY, JSON.stringify(entries)); }, [entries]);
-
-  const toggleSub = name => setSubstances(p => { const n={...p}; n[name]?delete n[name]:n[name]={amount:"",unit:""}; return n; });
-  const updateSub = (name,field,val) => setSubstances(p => ({...p,[name]:{...p[name],[field]:val}}));
-  const addCustom = () => { const s=customSub.trim(); if(!s)return; setSubstances(p=>({...p,[s]:{amount:"",unit:""}})); setCustomSub(""); };
-
-  function handleSave() {
-    if (!mood) return;
-    const entry = { id: Date.now(), ts: Date.now(), mood: mood.score, moodLabel: mood.label, moodEmoji: mood.emoji, anxiety, sleepH, sleepQ, substances:{...substances}, note };
-    setEntries(p => [entry, ...p]);
-    setMood(null); setAnxiety(3); setSleepH(7); setSleepQ(5); setSubstances({}); setNote("");
-    setSaved(true); setTimeout(() => setSaved(false), 2000);
-  }
-
-  async function analyze() {
-    setAiLoading(true); setAiText("");
-    const summary = [...entries].slice(0,20).reverse().map(e => ({
-      date: new Date(e.ts).toLocaleDateString("en-GB",{day:"numeric",month:"short"}),
-      mood:`${e.moodLabel}(${e.mood}/10)`, anxiety:`${e.anxiety}/9`,
-      sleep:`${e.sleepH}h q${e.sleepQ}`, substances:Object.keys(e.substances||{}).join(",")||"none", note:e.note||""
-    }));
-    try {
-      const res = await fetch("https://api.anthropic.com/v1/messages",{
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:800,
-          system:"You are a compassionate, non-judgmental mental wellness companion. Analyze the journal entries. Write 2–3 short paragraphs noting correlations between sleep, substances, anxiety and mood. Warm tone, no bullets, no clinical language, no disclaimers.",
-          messages:[{role:"user",content:"My journal entries:\n\n"+JSON.stringify(summary,null,2)+"\n\nWhat patterns do you notice?"}]
-        })
-      });
-      const data = await res.json();
-      setAiText(data.content?.find(b=>b.type==="text")?.text || "Could not analyze.");
-    } catch { setAiText("Analysis unavailable — check your connection."); }
-    setAiLoading(false);
-  }
-
-  const chartData = [...entries].reverse().slice(-30).map(e => ({
-    date: new Date(e.ts).toLocaleDateString("en-GB",{day:"numeric",month:"short"}),
-    Mood: e.mood, Anxiety: e.anxiety, Sleep: e.sleepH
-  }));
-
-  const s = {
-    wrap: { minHeight:"100vh", paddingBottom:"4rem" },
-    header: { padding:"1.2rem 1.2rem 0", borderBottom:"1px solid #1e2130" },
-    title: { fontSize:"1.2rem", fontWeight:700, color:"#c9b8f5" },
-    sub: { fontSize:"0.72rem", color:"#6b7280", marginTop:"0.15rem" },
-    tabs: { display:"flex", gap:"1rem", marginTop:"1rem" },
-    tab: a => ({ padding:"0.5rem 0", background:"none", border:"none", borderBottom: a?"2px solid #c9b8f5":"2px solid transparent", color:a?"#c9b8f5":"#6b7280", cursor:"pointer", fontSize:"0.85rem", fontWeight:600 }),
-    body: { padding:"1.2rem" },
-    label: { fontSize:"0.68rem", fontWeight:600, color:"#6b7280", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"0.45rem", display:"block" },
-    sec: { marginBottom:"1.4rem" },
-    moodGrid: { display:"flex", gap:"0.4rem", flexWrap:"wrap" },
-    moodBtn: a => ({ padding:"0.45rem 0.75rem", borderRadius:"8px", border:a?"2px solid #c9b8f5":"2px solid #1e2130", background:a?"#1e1a2e":"#161a27", color:"#e8e6e1", cursor:"pointer", fontSize:"0.82rem", fontWeight:a?700:400 }),
-    sliderRow: { display:"flex", alignItems:"center", gap:"0.6rem" },
-    sliderLbl: { fontSize:"0.78rem", color:"#6b7280", minWidth:"3.5rem" },
-    sliderVal: { fontSize:"0.85rem", color:"#c9b8f5", fontWeight:700, minWidth:"2rem" },
-    slider: { flex:1, accentColor:"#c9b8f5" },
-    subGrid: { display:"flex", gap:"0.4rem", flexWrap:"wrap" },
-    subBtn: a => ({ padding:"0.32rem 0.65rem", borderRadius:"6px", border:a?"1px solid #c9b8f5":"1px solid #1e2130", background:a?"#1e1a2e":"#161a27", color:a?"#c9b8f5":"#9ca3af", cursor:"pointer", fontSize:"0.78rem" }),
-    subDetail: { display:"flex", gap:"0.4rem", marginTop:"0.5rem", flexWrap:"wrap" },
-    smallInput: { width:"65px" },
-    textarea: { width:"100%", minHeight:"75px", resize:"vertical", fontSize:"0.88rem", padding:"0.65rem", borderRadius:"8px", fontFamily:"inherit" },
-    saveBtn: ok => ({ width:"100%", padding:"0.78rem", borderRadius:"10px", border:"none", background:ok?"#7c5ccc":"#2a2d3a", color:ok?"#fff":"#4b5563", cursor:ok?"pointer":"not-allowed", fontSize:"0.93rem", fontWeight:700 }),
-    card: { background:"#161a27", borderRadius:"10px", padding:"0.8rem 1rem", marginBottom:"0.65rem", borderLeft:"3px solid #7c5ccc" },
-    analyzeBtn: { width:"100%", padding:"0.72rem", borderRadius:"10px", border:"1px solid #7c5ccc", background:"transparent", color:"#c9b8f5", cursor:"pointer", fontSize:"0.88rem", fontWeight:600, marginBottom:"1rem" },
-    aiBox: { background:"#161a27", borderRadius:"10px", padding:"1rem 1.1rem", lineHeight:1.7, fontSize:"0.88rem", color:"#d1cdc7", marginBottom:"1.4rem" },
-  };
-
-  return (
-    <div style={s.wrap}>
-      <div style={s.header}>
-        <div style={s.title}>🌙 Inner Log</div>
-        <div style={s.sub}>private · persistent · non-judgmental</div>
-        <div style={s.tabs}>
-          <button style={s.tab(tab==="log")} onClick={()=>setTab("log")}>Log Entry</button>
-          <button style={s.tab(tab==="trends")} onClick={()=>setTab("trends")}>Trends {entries.length>0&&`(${entries.length})`}</button>
-        </div>
-      </div>
-
-      <div style={s.body}>
-        {tab==="log" && <>
-          <div style={s.sec}>
-            <span style={s.label}>How are you feeling?</span>
-            <div style={s.moodGrid}>
-              {MOODS.map(m=><button key={m.score} style={s.moodBtn(mood?.score===m.score)} onClick={()=>setMood(m)}>{m.emoji} {m.label}</button>)}
-            </div>
-          </div>
-
-          <div style={s.sec}>
-            <span style={s.label}>Anxiety — {ANXIETY_LABELS[anxiety-1]}</span>
-            <div style={s.sliderRow}>
-              <input type="range" min={1} max={9} value={anxiety} onChange={e=>setAnxiety(+e.target.value)} style={s.slider} />
-              <span style={s.sliderVal}>{anxiety}</span>
-            </div>
-          </div>
-
-          <div style={s.sec}>
-            <span style={s.label}>Sleep last night</span>
-            <div style={s.sliderRow}>
-              <span style={s.sliderLbl}>Hours</span>
-              <input type="range" min={0} max={12} step={0.5} value={sleepH} onChange={e=>setSleepH(+e.target.value)} style={s.slider} />
-              <span style={s.sliderVal}>{sleepH}h</span>
-            </div>
-            <div style={{...s.sliderRow, marginTop:"0.4rem"}}>
-              <span style={s.sliderLbl}>Quality</span>
-              <input type="range" min={1} max={9} value={sleepQ} onChange={e=>setSleepQ(+e.target.value)} style={s.slider} />
-              <span style={s.sliderVal}>{sleepQ}</span>
-            </div>
-          </div>
-
-          <div style={s.sec}>
-            <span style={s.label}>Substances (optional)</span>
-            <div style={s.subGrid}>
-              {SUBSTANCE_PRESETS.map(n=><button key={n} style={s.subBtn(!!substances[n])} onClick={()=>toggleSub(n)}>{n}</button>)}
-            </div>
-            {Object.keys(substances).length>0 && (
-              <div style={s.subDetail}>
-                {Object.entries(substances).map(([name,vals])=>(
-                  <div key={name} style={{display:"flex",alignItems:"center",gap:"0.35rem",background:"#1e2130",borderRadius:"6px",padding:"0.3rem 0.55rem"}}>
-                    <span style={{fontSize:"0.78rem",color:"#c9b8f5"}}>{name}</span>
-                    <input style={s.smallInput} placeholder="amount" value={vals.amount} onChange={e=>updateSub(name,"amount",e.target.value)} />
-                    <input style={{...s.smallInput,width:"50px"}} placeholder="unit" value={vals.unit} onChange={e=>updateSub(name,"unit",e.target.value)} />
-                  </div>
-                ))}
-              </div>
-            )}
-            <div style={{display:"flex",gap:"0.5rem",marginTop:"0.5rem"}}>
-              <input style={{width:"140px"}} placeholder="Add custom…" value={customSub} onChange={e=>setCustomSub(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addCustom()} />
-              <button onClick={addCustom} style={s.subBtn(false)}>+</button>
-            </div>
-          </div>
-
-          <div style={s.sec}>
-            <span style={s.label}>Note (optional)</span>
-            <textarea style={s.textarea} placeholder="What's on your mind…" value={note} onChange={e=>setNote(e.target.value)} />
-          </div>
-
-          <button style={s.saveBtn(!!mood)} onClick={handleSave} disabled={!mood}>
-            {saved?"✓ Saved":"Save entry"}
-          </button>
-        </>}
-
-        {tab==="trends" && <>
-          {entries.length===0
-            ? <div style={{color:"#6b7280",textAlign:"center",marginTop:"3rem"}}>No entries yet.</div>
-            : <>
-              {entries.length>=3 && (
-                <div style={{marginBottom:"1.4rem"}}>
-                  <span style={s.label}>Last 30 entries</span>
-                  <ResponsiveContainer width="100%" height={190}>
-                    <LineChart data={chartData}>
-                      <XAxis dataKey="date" tick={{fontSize:9,fill:"#6b7280"}} />
-                      <YAxis tick={{fontSize:9,fill:"#6b7280"}} domain={[0,12]} />
-                      <Tooltip contentStyle={{background:"#161a27",border:"1px solid #1e2130",borderRadius:"8px",fontSize:"0.78rem"}} />
-                      <Legend wrapperStyle={{fontSize:"0.73rem"}} />
-                      <Line type="monotone" dataKey="Mood" stroke="#c9b8f5" dot={false} strokeWidth={2} />
-                      <Line type="monotone" dataKey="Anxiety" stroke="#f87171" dot={false} strokeWidth={2} />
-                      <Line type="monotone" dataKey="Sleep" stroke="#34d399" dot={false} strokeWidth={2} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              )}
-
-              <button style={s.analyzeBtn} onClick={analyze} disabled={aiLoading}>
-                {aiLoading?"Analyzing…":"✦ Ask Claude to analyze my patterns"}
-              </button>
-
-              {aiText && <div style={s.aiBox}>{aiText}</div>}
-
-              <span style={s.label}>All entries</span>
-              {entries.map(e=>(
-                <div key={e.id} style={s.card}>
-                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:"0.35rem"}}>
-                    <span style={{fontWeight:700}}>{e.moodEmoji} {e.moodLabel}</span>
-                    <span style={{fontSize:"0.72rem",color:"#6b7280"}}>{new Date(e.ts).toLocaleDateString("en-GB",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}</span>
-                  </div>
-                  <div style={{fontSize:"0.76rem",color:"#9ca3af",display:"flex",gap:"0.9rem",flexWrap:"wrap"}}>
-                    <span>Anxiety {e.anxiety}/9</span>
-                    <span>Sleep {e.sleepH}h (q{e.sleepQ})</span>
-                    {Object.keys(e.substances||{}).length>0 && <span>💊 {Object.keys(e.substances).join(", ")}</span>}
-                  </div>
-                  {e.note && <div style={{marginTop:"0.45rem",fontSize:"0.83rem",color:"#d1cdc7",fontStyle:"italic"}}>{e.note}</div>}
-                </div>
-              ))}
-            </>
-          }
-        </>}
+    <div class="section">
+      <span class="label" id="anxiety-label">Anxiety — Calm</span>
+      <div class="slider-row">
+        <input type="range" min="1" max="9" value="3" id="anxiety-slider" oninput="updateAnxiety(this.value)">
+        <span class="slider-val" id="anxiety-val">3</span>
       </div>
     </div>
-  );
+
+    <div class="section">
+      <span class="label">Sleep last night</span>
+      <div class="slider-row">
+        <span class="slider-lbl">Hours</span>
+        <input type="range" min="0" max="12" step="0.5" value="7" id="sleep-h" oninput="document.getElementById('sleep-h-val').textContent=this.value+'h'">
+        <span class="slider-val" id="sleep-h-val">7h</span>
+      </div>
+      <div class="slider-row" style="margin-top:0.4rem">
+        <span class="slider-lbl">Quality</span>
+        <input type="range" min="1" max="9" value="5" id="sleep-q" oninput="document.getElementById('sleep-q-val').textContent=this.value">
+        <span class="slider-val" id="sleep-q-val">5</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <span class="label">Substances (optional)</span>
+      <div class="sub-grid" id="sub-grid"></div>
+      <div class="sub-details" id="sub-details"></div>
+      <div class="custom-row">
+        <input type="text" id="custom-sub" placeholder="Add custom…" onkeydown="if(event.key==='Enter')addCustomSub()">
+        <button class="sub-btn" onclick="addCustomSub()">+</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <span class="label">Note (optional)</span>
+      <textarea id="note" placeholder="What's on your mind…"></textarea>
+    </div>
+
+    <button id="save-btn" onclick="saveEntry()">Save entry</button>
+  </div>
+
+  <!-- TRENDS TAB -->
+  <div id="trends-tab" style="display:none">
+    <div id="empty">No entries yet.</div>
+    <div id="trends-content" style="display:none">
+      <div class="chart-wrap" id="chart-wrap" style="display:none">
+        <span class="label">Last 30 entries</span>
+        <canvas id="chart" height="180"></canvas>
+      </div>
+      <button id="analyze-btn" onclick="analyze()">✦ Ask Claude to analyze my patterns</button>
+      <div id="ai-box"></div>
+      <span class="label">All entries</span>
+      <div id="entries-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const MOODS = [
+  {score:1,label:"Terrible",emoji:"😞"},
+  {score:3,label:"Low",emoji:"😕"},
+  {score:5,label:"Okay",emoji:"😐"},
+  {score:7,label:"Good",emoji:"🙂"},
+  {score:9,label:"Great",emoji:"😄"},
+  {score:10,label:"Euphoric",emoji:"🤩"},
+];
+const ANXIETY_LABELS = ["Calm","Mild","Moderate","Notable","High","Elevated","Strong","Intense","Severe"];
+const PRESETS = ["Alcohol","Cannabis","MDMA","Caffeine","Cocaine","Psilocybin","Kratom","Other"];
+const KEY = "inner_log_v1";
+
+let entries = [], selectedMood = null, activeSubs = {}, chartInstance = null;
+
+function load() { try { return JSON.parse(localStorage.getItem(KEY)||"[]"); } catch { return []; } }
+function persist() { localStorage.setItem(KEY, JSON.stringify(entries)); }
+
+function init() {
+  entries = load();
+  renderMoodGrid();
+  renderSubGrid();
+  updateTrendsTab();
+  document.getElementById("trends-tab-btn").textContent = "Trends" + (entries.length ? ` (${entries.length})` : "");
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+function renderMoodGrid() {
+  const el = document.getElementById("mood-grid");
+  el.innerHTML = MOODS.map(m =>
+    `<button class="mood-btn" data-score="${m.score}" onclick="selectMood(${m.score})">${m.emoji} ${m.label}</button>`
+  ).join("");
+}
+
+function selectMood(score) {
+  selectedMood = MOODS.find(m => m.score === score);
+  document.querySelectorAll(".mood-btn").forEach(b => b.classList.toggle("active", +b.dataset.score === score));
+  document.getElementById("save-btn").className = "ready";
+}
+
+function updateAnxiety(v) {
+  document.getElementById("anxiety-val").textContent = v;
+  document.getElementById("anxiety-label").textContent = "Anxiety — " + ANXIETY_LABELS[v-1];
+}
+
+function renderSubGrid() {
+  const grid = document.getElementById("sub-grid");
+  const allSubs = [...PRESETS, ...Object.keys(activeSubs).filter(s => !PRESETS.includes(s))];
+  grid.innerHTML = allSubs.map(n =>
+    `<button class="sub-btn${activeSubs[n]?' active':''}" onclick="toggleSub('${n}')">${n}</button>`
+  ).join("");
+  renderSubDetails();
+}
+
+function renderSubDetails() {
+  const el = document.getElementById("sub-details");
+  const active = Object.keys(activeSubs);
+  if (!active.length) { el.innerHTML = ""; return; }
+  el.innerHTML = active.map(name =>
+    `<div class="sub-item">
+      <span>${name}</span>
+      <input type="text" placeholder="amount" value="${activeSubs[name].amount||''}" oninput="activeSubs['${name}'].amount=this.value" style="width:60px">
+      <input type="text" placeholder="unit" value="${activeSubs[name].unit||''}" oninput="activeSubs['${name}'].unit=this.value" style="width:48px">
+    </div>`
+  ).join("");
+}
+
+function toggleSub(name) {
+  if (activeSubs[name]) delete activeSubs[name];
+  else activeSubs[name] = {amount:"",unit:""};
+  renderSubGrid();
+}
+
+function addCustomSub() {
+  const inp = document.getElementById("custom-sub");
+  const s = inp.value.trim(); if (!s) return;
+  activeSubs[s] = {amount:"",unit:""};
+  inp.value = "";
+  renderSubGrid();
+}
+
+function saveEntry() {
+  if (!selectedMood) return;
+  const entry = {
+    id: Date.now(), ts: Date.now(),
+    mood: selectedMood.score, moodLabel: selectedMood.label, moodEmoji: selectedMood.emoji,
+    anxiety: +document.getElementById("anxiety-slider").value,
+    sleepH: +document.getElementById("sleep-h").value,
+    sleepQ: +document.getElementById("sleep-q").value,
+    substances: JSON.parse(JSON.stringify(activeSubs)),
+    note: document.getElementById("note").value,
+  };
+  entries.unshift(entry);
+  persist();
+
+  // reset
+  selectedMood = null; activeSubs = {};
+  document.querySelectorAll(".mood-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById("save-btn").className = "";
+  document.getElementById("anxiety-slider").value = 3; updateAnxiety(3);
+  document.getElementById("sleep-h").value = 7; document.getElementById("sleep-h-val").textContent = "7h";
+  document.getElementById("sleep-q").value = 5; document.getElementById("sleep-q-val").textContent = "5";
+  document.getElementById("note").value = "";
+  renderSubGrid();
+
+  const btn = document.getElementById("save-btn");
+  btn.textContent = "✓ Saved";
+  setTimeout(() => { btn.textContent = "Save entry"; }, 2000);
+
+  document.getElementById("trends-tab-btn").textContent = `Trends (${entries.length})`;
+  updateTrendsTab();
+}
+
+function switchTab(t) {
+  document.getElementById("log-tab").style.display = t==="log" ? "" : "none";
+  document.getElementById("trends-tab").style.display = t==="trends" ? "" : "none";
+  document.querySelectorAll(".tab-btn").forEach((b,i) => b.classList.toggle("active", (i===0&&t==="log")||(i===1&&t==="trends")));
+  if (t==="trends") updateTrendsTab();
+}
+
+function updateTrendsTab() {
+  const empty = document.getElementById("empty");
+  const content = document.getElementById("trends-content");
+  if (!entries.length) { empty.style.display=""; content.style.display="none"; return; }
+  empty.style.display = "none"; content.style.display = "";
+
+  const chartWrap = document.getElementById("chart-wrap");
+  if (entries.length >= 3) {
+    chartWrap.style.display = "";
+    const recent = [...entries].reverse().slice(-30);
+    const labels = recent.map(e => new Date(e.ts).toLocaleDateString("en-GB",{day:"numeric",month:"short"}));
+    const ctx = document.getElementById("chart").getContext("2d");
+    if (chartInstance) chartInstance.destroy();
+    chartInstance = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [
+          { label:"Mood", data: recent.map(e=>e.mood), borderColor:"#c9b8f5", tension:0.3, pointRadius:2, borderWidth:2, fill:false },
+          { label:"Anxiety", data: recent.map(e=>e.anxiety), borderColor:"#f87171", tension:0.3, pointRadius:2, borderWidth:2, fill:false },
+          { label:"Sleep h", data: recent.map(e=>e.sleepH), borderColor:"#34d399", tension:0.3, pointRadius:2, borderWidth:2, fill:false },
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color:"#9ca3af", font:{size:11} } } },
+        scales: {
+          x: { ticks:{color:"#6b7280",font:{size:9}}, grid:{color:"#1e2130"} },
+          y: { ticks:{color:"#6b7280",font:{size:9}}, grid:{color:"#1e2130"}, min:0, max:12 }
+        }
+      }
+    });
+  } else { chartWrap.style.display = "none"; }
+
+  // entry list
+  document.getElementById("entries-list").innerHTML = entries.map(e => {
+    const subs = Object.keys(e.substances||{});
+    return `<div class="entry-card">
+      <div class="top"><span class="mood-label">${e.moodEmoji} ${e.moodLabel}</span><span class="ts">${new Date(e.ts).toLocaleDateString("en-GB",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}</span></div>
+      <div class="meta"><span>Anxiety ${e.anxiety}/9</span><span>Sleep ${e.sleepH}h (q${e.sleepQ})</span>${subs.length?`<span>💊 ${subs.join(", ")}</span>`:""}</div>
+      ${e.note?`<div class="note">${e.note}</div>`:""}
+    </div>`;
+  }).join("");
+}
+
+async function analyze() {
+  const btn = document.getElementById("analyze-btn");
+  btn.textContent = "Analyzing…"; btn.disabled = true;
+  const aiBox = document.getElementById("ai-box");
+  aiBox.style.display = ""; aiBox.textContent = "";
+
+  const summary = [...entries].slice(0,20).reverse().map(e => ({
+    date: new Date(e.ts).toLocaleDateString("en-GB",{day:"numeric",month:"short"}),
+    mood:`${e.moodLabel}(${e.mood}/10)`, anxiety:`${e.anxiety}/9`,
+    sleep:`${e.sleepH}h q${e.sleepQ}`, substances:Object.keys(e.substances||{}).join(",")||"none", note:e.note||""
+  }));
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        model:"claude-sonnet-4-20250514", max_tokens:800,
+        system:"You are a compassionate, non-judgmental mental wellness companion. Analyze the journal entries. Write 2–3 short paragraphs noting correlations between sleep, substances, anxiety and mood. Warm tone, no bullets, no clinical language, no disclaimers.",
+        messages:[{role:"user",content:"My journal entries:\n\n"+JSON.stringify(summary,null,2)+"\n\nWhat patterns do you notice?"}]
+      })
+    });
+    const data = await res.json();
+    aiBox.textContent = data.content?.find(b=>b.type==="text")?.text || "Could not analyze.";
+  } catch { aiBox.textContent = "Analysis unavailable — check your connection."; }
+
+  btn.textContent = "✦ Refresh analysis"; btn.disabled = false;
+}
+
+init();
 </script>
 </body>
 </html>
