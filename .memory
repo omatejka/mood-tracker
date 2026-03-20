@@ -1,0 +1,33 @@
+# Project Memory
+
+## Stack
+- React + TypeScript (Vite)
+- pnpm for package management
+- Node v22 required (use `nvm use 22`)
+
+## Rules (from AGENT.md + docs/)
+- TypeScript everywhere — no .js/.jsx files
+- Strict tsconfig: strict, noImplicitAny, strictNullChecks, noUncheckedIndexedAccess
+- No caret/tilde in package.json versions (exact versions only)
+- Use pnpm, not npm
+- Functional style, immutable data (no mutation)
+- Minimal dependencies
+
+## Key files
+- docs/engineering_principles.md — coding standards
+- docs/agent_instructions.md — points to engineering_principles + ai_development_workflow
+- docs/ai_development_workflow.md — dev loop and coding rules
+- AGENT.md — tooling rules (node v22, pnpm, exact versions, .memory)
+- CLAUDE.md — points to AGENT.md
+
+## Project structure
+- src/types.ts — shared interfaces (Entry, Mood, SubstanceEntry)
+- src/constants.ts — MOODS, ANXIETY_LABELS, PRESETS, STORAGE_KEY
+- src/storage.ts — loadEntries / saveEntries (localStorage)
+- src/App.tsx — tab state + entry list
+- src/components/LogTab.tsx — log form
+- src/components/TrendsTab.tsx — chart + AI analysis + entry list
+
+## Dev workflow
+Always read CLAUDE.md → AGENT.md → docs/ before writing code.
+Run `pnpm exec tsc --noEmit` to verify before finishing.
