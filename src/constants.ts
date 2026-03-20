@@ -1,4 +1,4 @@
-import type { Mood } from './types'
+import type { Mood } from './types';
 
 export const MOODS: ReadonlyArray<Mood> = [
   { score: 1, label: 'Terrible', emoji: '😞' },
@@ -7,14 +7,25 @@ export const MOODS: ReadonlyArray<Mood> = [
   { score: 7, label: 'Good', emoji: '🙂' },
   { score: 9, label: 'Great', emoji: '😄' },
   { score: 10, label: 'Euphoric', emoji: '🤩' },
-]
+];
 
 export const ANXIETY_LABELS: ReadonlyArray<string> = [
-  'Calm', 'Mild', 'Moderate', 'Notable', 'High', 'Elevated', 'Strong', 'Intense', 'Severe',
-]
+  'Calm',
+  'Mild',
+  'Moderate',
+  'Notable',
+  'High',
+  'Elevated',
+  'Strong',
+  'Intense',
+  'Severe',
+];
 
 export const PRESETS: ReadonlyArray<string> = [
-  'Alcohol', 'Cannabis', 'MDMA', 'Caffeine', 'Cocaine', 'Psilocybin', 'Kratom', 'Other',
-]
+  'Nicotine',
+  'Cannabis',
+  'Caffeine',
+  'Alcohol',
+];
 
-export const STORAGE_KEY = 'inner_log_v1'
+export const STORAGE_KEY = 'inner_log_v1';
